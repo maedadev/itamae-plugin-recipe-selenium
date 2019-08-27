@@ -1,19 +1,24 @@
-require 'webdrivers/geckodriver'
-require_relative 'patches/webdrivers/common'
-require_relative 'patches/webdrivers/system'
+require 'net/http'
 
-::Webdrivers::System.target_os = 'linux'
-version = ::Webdrivers::Geckodriver.latest_version
-download_url = ::Webdrivers::Geckodriver.send(:download_url)
+base_url = "https://github.com/mozilla/geckodriver/releases"
+url = base_url + '/latest'
+response = nil
+5.times do
+  response = Net::HTTP.get_response(URI(url))
+
+  break unless response.is_a?(Net::HTTPRedirection) 
+  url = response['location']
+end
+version = response.uri.to_s[/[^v]*$/]
+download_url = base_url + "/download/v#{version}/geckodriver-v#{version}-linux64.tar.gz"
 
 execute "download geckodriver-#{version}" do
   cwd '/tmp/itamae-plugin-recipe-selenium'
   command <<-EOF
     rm -Rf geckodriver-v#{version}-linux64*
     curl -L -o geckodriver-v#{version}-linux64.tar.gz #{download_url}
-    sha256sum geckodriver-v#{version}-linux64.tar.gz > geckodriver-v#{version}-linux64_sha256.txt
   EOF
-  not_if "test -e geckodriver-v#{version}-linux64_sha256.txt && sha256sum -c geckodriver-v#{version}-linux64_sha256.txt"
+  not_if "test -e geckodriver-v#{version}-linux64.tar.gz"
 end
 
 execute "install geckodriver-#{version}" do
