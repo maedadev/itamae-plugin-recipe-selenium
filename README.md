@@ -24,7 +24,7 @@ Include this recpie as:
 
     include_recipe 'selenium'
 
-This recipe will install chrome web brawser and selenium webdriver for chrome and gecko.
+This recipe will install chrome web browser and selenium webdriver for chrome and gecko.
 
 ## Development
 
