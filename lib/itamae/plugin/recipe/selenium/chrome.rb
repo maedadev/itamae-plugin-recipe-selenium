@@ -5,8 +5,14 @@ template '/etc/yum.repos.d/google-chrome.repo' do
   mode '644'
 end
 
-package 'google-chrome-stable' do
-  user 'root'
+if ENV['CHROME_VERSION'].to_s.empty?
+  package 'google-chrome-stable' do
+    user 'root'
+  end
+else
+  execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}.x86_64.rpm" do
+    user 'root'
+  end
 end
 
 execute 'yum update -y google-chrome-stable' do
