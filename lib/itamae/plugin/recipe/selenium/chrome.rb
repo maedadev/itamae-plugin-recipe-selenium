@@ -1,4 +1,4 @@
-version = ENV['CHROME_VERSION'] || '94.0.4606.81'
+version = ENV['CHROME_VERSION']
 
 template '/etc/yum.repos.d/google-chrome.repo' do
   user 'root'
@@ -7,12 +7,18 @@ template '/etc/yum.repos.d/google-chrome.repo' do
   mode '644'
 end
 
-execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{version}-1.x86_64.rpm" do
-  user 'root'
-  not_if "which google-chrome-stable && google-chrome-stable --version | cut -d ' ' -f 3 | egrep \"^#{version}$\""
+if ENV['CHROME_VERSION'].to_s.empty?
+  package 'google-chrome-stable' do
+    user 'root'
+  end
+else
+  execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}-1.x86_64.rpm" do
+    user 'root'
+    not_if "which google-chrome-stable && google-chrome-stable --version | cut -d ' ' -f 3 | egrep \"^#{ENV['CHROME_VERSION']}$\""
+  end
 end
 
 execute 'yum update -y google-chrome-stable' do
   user 'root'
-  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (90|91|92|93|94)\.'"
+  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (91|92|93|94|96)\.'"
 end
