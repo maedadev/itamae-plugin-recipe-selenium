@@ -36,14 +36,19 @@ module Itamae
           base_url = 'https://' + host
           browser_version = run_command('sudo yum list | grep google-chrome-stable').stdout.split[1]
           browser_version = Gem::Version.new(browser_version.to_s).segments[0..2].join('.')
+
           driver_version_url = base_url + "/LATEST_RELEASE_#{browser_version}"
           driver_version = Net::HTTP.get_response(URI(driver_version_url)).body
+          
+          # see https://stackoverflow.com/questions/70967207/selenium-chromedriver-cannot-construct-keyevent-from-non-typeable-key/70968668
+          driver_version = '97.0.4692.71' if driver_version.start_with?('98.')
+
           download_url = base_url + "/#{driver_version}/chromedriver_linux64.zip"
           header = Net::HTTP.start(host) { |http| http.head("/#{driver_version}/chromedriver_linux64.zip") }
           etag = header['etag'][1...-1]
 
-          Itamae.logger.debug "browser version: #{browser_version}"
-          Itamae.logger.debug "driver version: #{driver_version}"
+          Itamae.logger.info "browser version: #{browser_version}"
+          Itamae.logger.info "driver version: #{driver_version}"
           Itamae.logger.debug "download url: #{download_url}"
           Itamae.logger.debug "etag: #{etag}"
 
