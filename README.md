@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-Include this recpie as:
+Include this recipe as:
 
     include_recipe 'selenium'
 
