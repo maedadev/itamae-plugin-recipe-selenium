@@ -1,5 +1,3 @@
-version = ENV['CHROME_VERSION']
-
 template '/etc/yum.repos.d/google-chrome.repo' do
   user 'root'
   owner 'root'
