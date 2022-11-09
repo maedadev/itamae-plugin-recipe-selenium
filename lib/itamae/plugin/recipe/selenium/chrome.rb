@@ -18,5 +18,5 @@ end
 
 execute 'yum update -y google-chrome-stable' do
   user 'root'
-  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (102|103|104)\.'"
+  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (104|105|106|107)\.'"
 end
