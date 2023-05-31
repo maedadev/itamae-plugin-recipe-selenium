@@ -3,6 +3,7 @@ template '/etc/yum.repos.d/google-chrome.repo' do
   owner 'root'
   group 'root'
   mode '644'
+  variables disable_gpg_check: ['1', 'yes', 'true'].include?(ENV['CHROME_DISABLE_GPG_CHECK'].to_s.downcase)
 end
 
 if ENV['CHROME_VERSION'].to_s.empty?
@@ -18,5 +19,5 @@ end
 
 execute 'yum update -y google-chrome-stable' do
   user 'root'
-  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (110|111|112|113)\.'"
+  not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (110|111|112|113|114)\.'"
 end
