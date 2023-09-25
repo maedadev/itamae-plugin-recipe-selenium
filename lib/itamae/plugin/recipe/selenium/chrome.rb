@@ -7,11 +7,11 @@ template '/etc/yum.repos.d/google-chrome.repo' do
 end
 
 if ENV['CHROME_VERSION'].to_s.empty?
-  ENV['CHROME_VERSION'] = '114.0.5735.90'
+  ENV['CHROME_VERSION'] = '117.0.5938.92'
 
   execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}-1.x86_64.rpm" do
     user 'root'
-    not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (110|111|112|113|114)\.'"
+    not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (113|114|115|116|117)\.'"
   end
 else
   execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}-1.x86_64.rpm" do

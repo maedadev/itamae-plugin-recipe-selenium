@@ -1,4 +1,6 @@
-require 'net/http'
+require 'json'
+require 'net/https'
+require 'uri'
 
 module Itamae
   module Plugin
@@ -32,41 +34,35 @@ module Itamae
         private
 
         def run_setup_chromedriver
-          host = 'chromedriver.storage.googleapis.com'
-          base_url = 'https://' + host
           browser_version = run_command('sudo yum list | grep google-chrome-stable').stdout.split[1]
           browser_version = Gem::Version.new(browser_version.to_s).segments[0..2].join('.')
 
-          driver_version_url = base_url + "/LATEST_RELEASE_#{browser_version}"
-          driver_version = Net::HTTP.get_response(URI(driver_version_url)).body
-          
-          # see https://stackoverflow.com/questions/70967207/selenium-chromedriver-cannot-construct-keyevent-from-non-typeable-key/70968668
-          driver_version = '97.0.4692.71' if driver_version.start_with?('98.')
-
-          download_url = base_url + "/#{driver_version}/chromedriver_linux64.zip"
-          header = Net::HTTP.start(host) { |http| http.head("/#{driver_version}/chromedriver_linux64.zip") }
-          etag = header['etag'][1...-1]
+          driver_version_url = 'https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json'
+          driver_versions = JSON.parse(Net::HTTP.get_response(URI(driver_version_url)).body)
+          driver_version_info = driver_versions['versions'].select{|hash| hash['version'].start_with?(browser_version) }.sort{|a, b| a['revision'] <=> b['revision'] }.last
+          driver_version = driver_version_info['version']
+          driver_download_url = driver_version_info['downloads']['chromedriver'].find{|hash| hash['platform'] == 'linux64' }&.[]('url')
 
           Itamae.logger.info "browser version: #{browser_version}"
           Itamae.logger.info "driver version: #{driver_version}"
-          Itamae.logger.debug "download url: #{download_url}"
-          Itamae.logger.debug "etag: #{etag}"
+          Itamae.logger.info "driver download url: #{driver_download_url}"
 
           run_command_if_not(
             'download chromedriver',
-            "echo '#{etag} chromedriver_linux64-#{driver_version}.zip' | md5sum -c -",
+            "#{attributes.install_dir}chromedriver -v | grep 'ChromeDriver #{driver_version} '",
             <<-COMMANDS
-              rm -Rf chromedriver_linux64-#{driver_version}*
-              curl -o chromedriver_linux64-#{driver_version}.zip #{download_url}
+              rm -f chromedriver-linux64.zip
+              curl -o chromedriver-linux64.zip #{driver_download_url}
             COMMANDS
           )
 
           run_command_if_not(
             'install chromedriver',
-            "#{attributes.install_dir}chromedriver -v | grep 'ChromeDriver #{driver_version}'",
+            "#{attributes.install_dir}chromedriver -v | grep 'ChromeDriver #{driver_version} '",
             <<-COMMANDS
-              unzip chromedriver_linux64-#{driver_version}.zip
-              sudo mv -f chromedriver #{attributes.install_dir}
+              rm -Rf chromedriver-linux64/
+              unzip chromedriver-linux64.zip
+              sudo mv -f chromedriver-linux64/chromedriver #{attributes.install_dir}
             COMMANDS
           )
         end
