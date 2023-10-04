@@ -36,15 +36,15 @@ module Itamae
         def run_setup_chromedriver
           browser_version = run_command('sudo yum list | grep google-chrome-stable').stdout.split[1]
           browser_version = Gem::Version.new(browser_version.to_s).segments[0..2].join('.')
+          Itamae.logger.info "browser version: #{browser_version}"
 
           driver_version_url = 'https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json'
           driver_versions = JSON.parse(Net::HTTP.get_response(URI(driver_version_url)).body)
           driver_version_info = driver_versions['versions'].select{|hash| hash['version'].start_with?(browser_version) }.sort{|a, b| a['revision'] <=> b['revision'] }.last
           driver_version = driver_version_info['version']
-          driver_download_url = driver_version_info['downloads']['chromedriver'].find{|hash| hash['platform'] == 'linux64' }&.[]('url')
-
-          Itamae.logger.info "browser version: #{browser_version}"
           Itamae.logger.info "driver version: #{driver_version}"
+
+          driver_download_url = driver_version_info['downloads']['chromedriver'].find{|hash| hash['platform'] == 'linux64' }&.[]('url')
           Itamae.logger.info "driver download url: #{driver_download_url}"
 
           run_command_if_not(
