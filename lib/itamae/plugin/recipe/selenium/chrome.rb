@@ -7,7 +7,7 @@ template '/etc/yum.repos.d/google-chrome.repo' do
 end
 
 if ENV['CHROME_VERSION'].to_s.empty?
-  ENV['CHROME_VERSION'] = '125.0.6422.78'
+  ENV['CHROME_VERSION'] = '125.0.6422.141'
 
   execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}-1.x86_64.rpm" do
     user 'root'
