@@ -15,10 +15,10 @@ if ENV['CHROME_VERSION'].to_s.empty?
       not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome 125\.'"
     end
   else
-    ENV['CHROME_VERSION'] = '148.0.7778.96'
+    ENV['CHROME_VERSION'] = '149.0.7827.200'
     execute "yum install -y https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-#{ENV['CHROME_VERSION']}-1.x86_64.rpm" do
       user 'root'
-      not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome (146|147|148)\.'"
+      not_if "which google-chrome-stable && google-chrome-stable --version | egrep 'Google Chrome 149\.'"
     end
   end
 else
